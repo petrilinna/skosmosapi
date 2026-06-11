@@ -9,6 +9,17 @@ FUSEKI_ENDPOINT = os.environ.get(
     "https://fuseki-skosmos.2.rahtiapp.fi/ds/sparql"
 )
 
+@app.get("/")
+def root():
+    return {
+        "service": "Skosmos API",
+        "version": "1.0",
+        "endpoints": [
+            "/health",
+            "/search?term=wheat"
+        ]
+    }
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
