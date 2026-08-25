@@ -34,13 +34,13 @@ def search():
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-    SELECT DISTINCT
+    SELECT
       ?uri
       ?label
       ?label_language
       ?graph
-      ?definition
-      ?definition_language
+      (SAMPLE(?definition) AS ?definition)
+      (SAMPLE(?definition_language) AS ?definition_language)
     WHERE {{
       GRAPH ?graph {{
         ?uri skos:prefLabel ?label .
@@ -55,20 +55,38 @@ def search():
 
           BIND(
             IF(
-              isLiteral(?defNode) && LANGMATCHES(LANG(?defNode), "en"),
+              isLiteral(?defNode) &&
+              LANGMATCHES(LANG(?defNode), "en"),
               ?defNode,
               ?defText
             )
             AS ?definition
           )
+
+          BIND(
+            LANG(?definition)
+            AS ?definition_language
+          )
         }}
 
-        BIND(LANG(?label) AS ?label_language)
-        BIND(LANG(?definition) AS ?definition_language)
+        BIND(
+          LANG(?label)
+          AS ?label_language
+        )
 
-        FILTER(CONTAINS(LCASE(STR(?label)), LCASE("{term}")))
+        FILTER(
+          CONTAINS(
+            LCASE(STR(?label)),
+            LCASE("{term}")
+          )
+        )
       }}
     }}
+    GROUP BY
+      ?uri
+      ?label
+      ?label_language
+      ?graph
     LIMIT 50
     """
 
