@@ -89,7 +89,7 @@ def search():
       ?label
       ?label_language
       ?graph
-    LIMIT 50
+    LIMIT 200
     """
     
     response = requests.get(
@@ -162,6 +162,6 @@ def search():
         reverse=True
     )
     
-    return jsonify(results)
+    return jsonify(results[:50])
 
 
