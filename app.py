@@ -44,7 +44,8 @@ def search():
     WHERE {{
       GRAPH ?graph {{
         ?uri skos:prefLabel ?label .
-
+        FILTER(LANGMATCHES(LANG(?label), "en"))
+        
         OPTIONAL {{
           ?uri skos:definition ?defNode .
 
