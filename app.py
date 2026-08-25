@@ -50,11 +50,12 @@ def search():
 
           OPTIONAL {{
             ?defNode rdf:value ?defText .
+            FILTER(LANGMATCHES(LANG(?defText), "en"))
           }}
 
           BIND(
             IF(
-              isLiteral(?defNode),
+              isLiteral(?defNode) && LANGMATCHES(LANG(?defNode), "en"),
               ?defNode,
               ?defText
             )
