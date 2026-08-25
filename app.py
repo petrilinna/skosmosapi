@@ -30,11 +30,9 @@ def search():
 
     if not term:
         return jsonify({"error": "Missing required query parameter: term"}), 400
-
     query = f"""
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    PREFIX dct: <http://purl.org/dc/terms/>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
     SELECT DISTINCT
       ?uri
@@ -48,23 +46,23 @@ def search():
         ?uri skos:prefLabel ?label .
 
         OPTIONAL {{
-          ?uri skos:definition ?def1 .
-        }}
+          ?uri skos:definition ?defNode .
 
-        OPTIONAL {{
-          ?uri skos:scopeNote ?def2 .
-        }}
+          OPTIONAL {{
+            ?defNode rdf:value ?defText .
+          }}
 
-        OPTIONAL {{
-          ?uri dct:description ?def3 .
-        }}
-
-        OPTIONAL {{
-          ?uri rdfs:comment ?def4 .
+          BIND(
+            IF(
+              isLiteral(?defNode),
+              ?defNode,
+              ?defText
+            )
+            AS ?definition
+          )
         }}
 
         BIND(LANG(?label) AS ?label_language)
-        BIND(COALESCE(?def1, ?def2, ?def3, ?def4) AS ?definition)
         BIND(LANG(?definition) AS ?definition_language)
 
         FILTER(CONTAINS(LCASE(STR(?label)), LCASE("{term}")))
