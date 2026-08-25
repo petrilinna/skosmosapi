@@ -88,7 +88,16 @@ def search():
         results.append({
             "uri": row["uri"]["value"],
             "label": row["label"]["value"],
-            "graph": row["graph"]["value"]
+            "label_language": row.get(
+                "label_language", {}
+            ).get("value"),
+            "graph": row["graph"]["value"],
+            "definition": row.get(
+                "definition", {}
+            ).get("value"),
+            "definition_language": row.get(
+                "definition_language", {}
+            ).get("value")
         })
 
     return jsonify(results)
