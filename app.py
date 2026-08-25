@@ -33,11 +33,40 @@ def search():
 
     query = f"""
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    PREFIX dct: <http://purl.org/dc/terms/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-    SELECT DISTINCT ?uri ?label ?graph
+    SELECT DISTINCT
+      ?uri
+      ?label
+      ?label_language
+      ?graph
+      ?definition
+      ?definition_language
     WHERE {{
       GRAPH ?graph {{
         ?uri skos:prefLabel ?label .
+
+        OPTIONAL {{
+          ?uri skos:definition ?def1 .
+        }}
+
+        OPTIONAL {{
+          ?uri skos:scopeNote ?def2 .
+        }}
+
+        OPTIONAL {{
+          ?uri dct:description ?def3 .
+        }}
+
+        OPTIONAL {{
+          ?uri rdfs:comment ?def4 .
+        }}
+
+        BIND(LANG(?label) AS ?label_language)
+        BIND(COALESCE(?def1, ?def2, ?def3, ?def4) AS ?definition)
+        BIND(LANG(?definition) AS ?definition_language)
+
         FILTER(CONTAINS(LCASE(STR(?label)), LCASE("{term}")))
       }}
     }}
